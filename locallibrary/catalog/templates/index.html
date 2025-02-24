@@ -19,4 +19,8 @@
     <li><strong>Authors:</strong> {{ num_authors }}</li>
     <li><strong>Books and Genres that contain the word "Test"</strong> {{ book_genre_search }}</li>
   </ul>
+
+  <p>
+    You have visited this page {{ num_visits }} time{{ num_visits|pluralize }}.
+  </p>
 {% endblock %}

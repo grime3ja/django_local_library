@@ -1,4 +1,6 @@
+from django.http import Http404
 from django.shortcuts import render
+from django.views import generic
 from .models import Book, Author, BookInstance, Genre
 
 def index(request):
@@ -27,3 +29,47 @@ def index(request):
 
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
+
+
+
+class BookListView(generic.ListView):
+    model = Book
+    paginate_by = 10
+
+    # def get_queryset(self):
+    #     return Book.objects.filter(title__icontains='war')[:5] # Get 5 books containing the title war
+    
+    # def get_context_data(self, **kwargs):
+    #     # Call the base implementation first to get the context
+    #     context = super(BookListView, self).get_context_data(**kwargs)
+    #     # Create any data and add it to the context
+    #     context['some_data'] = 'This is just some data'
+    #     return context
+    
+class BookDetailView(generic.DetailView):
+    model = Book
+
+    def book_detail_view(request, primary_key):
+        try:
+            book = Book.objects.get(pk=primary_key)
+        except Book.DoesNotExist:
+            raise Http404('Book does not exist')
+
+        return render(request, 'catalog/book_detail.html', context={'book': book})
+    
+
+class AuthorListView(generic.ListView):
+    model = Author
+    paginate_by = 10
+
+    
+class AuthorDetailView(generic.DetailView):
+    model = Author
+
+    def author_detail_view(request, primary_key):
+        try:
+            author = Author.objects.get(pk=primary_key)
+        except Author.DoesNotExist:
+            raise Http404('Author does not exist')
+
+        return render(request, 'catalog/author_detail.html', context={'author': author})

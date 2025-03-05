@@ -1,6 +1,9 @@
 from django.http import Http404
 from django.shortcuts import render
 from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.decorators import permission_required
 from .models import Book, Author, BookInstance, Genre
 
 def index(request):
@@ -78,3 +81,33 @@ class AuthorDetailView(generic.DetailView):
             raise Http404('Author does not exist')
 
         return render(request, 'catalog/author_detail.html', context={'author': author})
+
+
+class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
+    """Generic class-based view listing books on loan to current user."""
+    model = BookInstance
+    template_name = 'catalog/bookinstance_list_borrowed_user.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return (
+            BookInstance.objects.filter(borrower=self.request.user)
+            .filter(status__exact='o')
+            .order_by('due_back')
+        )
+
+
+class AllLoanedBooks(PermissionRequiredMixin, generic.ListView):
+    model = BookInstance
+    template_name = "catalog/bookinstance_list_borrowed_staff.html"
+    paginate_by = 10
+    permission_required = ('catalog.can_mark_returned', 'catalog.can_edit')
+
+    # @permission_required('catalog.can_mark_returned')
+    # @permission_required('catalog.can_edit')
+    def get_queryset(self):
+        return (
+            BookInstance.objects.all()
+            .filter(status__exact='o')
+            .order_by('due_back')
+        )

@@ -1,5 +1,6 @@
 from django.urls import include, path
 from . import views
+from .api import api
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -31,4 +32,8 @@ urlpatterns += [
     path('book/create/', views.BookCreate.as_view(), name='book-create'),
     path('book/<int:pk>/update/', views.BookUpdate.as_view(), name='book-update'),
     path('book/<int:pk>/delete/', views.BookDelete.as_view(), name='book-delete'),
+]
+
+urlpatterns += [
+    path("api/", api.urls),
 ]
